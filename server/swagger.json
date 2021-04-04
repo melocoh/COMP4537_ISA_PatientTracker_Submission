@@ -1,0 +1,763 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the API for HealthTracker, which is an application that keeps track of patient and medication prescription data for hospital patients.",
+    "version": "1.0.0",
+    "title": "PatientTracker"
+  },
+  "host": "comp4537-healthtracker-server.herokuapp.com",
+  "basePath": "/API/v1",
+  "tags": [
+    {
+      "name": "Logins",
+      "description": "Operations to log in to an authorized account"
+    },
+    {
+      "name": "Patients",
+      "description": "Access to patient and prescription details"
+    },
+    {
+      "name": "Medications",
+      "description": "Access to medication details"
+    },
+    {
+      "name": "Doses",
+      "description": "Access to patient's medication dosage details"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/logins": {
+      "post": {
+        "tags": [
+          "Logins"
+        ],
+        "summary": "Logs user into an auth account",
+        "description": "Returns JSON Web Token",
+        "operationId": "loginUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Email and password to login",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginAccount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          "400": {
+            "description": "Invalid username/password Credentials"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/patients": {
+      "post": {
+        "tags": [
+          "Patients"
+        ],
+        "summary": "Adds a new patient",
+        "description": "Creates a new patient",
+        "operationId": "addPatient",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Email and password to login",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          }
+        }
+      }
+    },
+    "/patients/{patient_id}": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "summary": "Fetches patient and prescription details",
+        "description": "For valid response use existing patient_id",
+        "operationId": "getPatient",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of patient that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "maximum": 10,
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/GetPatient"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Patients"
+        ],
+        "summary": "Updates patient details",
+        "description": "For valid response use existing patient_id",
+        "operationId": "updatePatient",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of the patient that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Patient elements that need to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Patients"
+        ],
+        "summary": "Delete patient details",
+        "description": "For valid response use existing patient_id",
+        "operationId": "deleteOrder",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of the patient that needs to be deleted",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      }
+    },
+    "/medications": {
+      "post": {
+        "tags": [
+          "Medications"
+        ],
+        "summary": "Adds a new medication",
+        "description": "Creates a new medication",
+        "operationId": "createMedication",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Created user object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Medication"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          }
+        }
+      }
+    },
+    "/medications/{medication_id}": {
+      "get": {
+        "tags": [
+          "Medications"
+        ],
+        "summary": "Fetches medication details",
+        "description": "For valid response use existing medication_id",
+        "operationId": "getMedication",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of Medication that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/GetMedication"
+            }
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Medications"
+        ],
+        "summary": "Updates medication details",
+        "description": "For valid response use existing medication_id",
+        "operationId": "updateMedication",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of the medication that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Medication elements that need to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Medication"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Medications"
+        ],
+        "summary": "Delete medication details",
+        "description": "For valid response use existing medication_id",
+        "operationId": "deleteMedication",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of the medication that needs to be deleted",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      }
+    },
+    "/doses": {
+      "post": {
+        "tags": [
+          "Doses"
+        ],
+        "summary": "Adds a new patient's medication dosage detail",
+        "description": "Creates new patient's medication dosage detail",
+        "operationId": "createDosage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Created user object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Dose"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          }
+        }
+      }
+    },
+    "/doses/{patient_id}/{medication_id}": {
+      "get": {
+        "tags": [
+          "Doses"
+        ],
+        "summary": "Fetches patient's medication dosage detail",
+        "description": "For valid response use existing patient_id and medication_id",
+        "operationId": "getDosage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of patient that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of patient that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/GetDose"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Doses"
+        ],
+        "summary": "Updates patient's medication dosage detail",
+        "description": "For valid response use existing patient_id and medication_id",
+        "operationId": "updateDosage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of patient that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of the patient that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Patient elements that need to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Dose"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PostPutResult"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Doses"
+        ],
+        "summary": "Delete patient's medication dosage detail",
+        "description": "For valid response use existing patient_id and medication_id",
+        "operationId": "deleteDosage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "auth-token",
+            "description": "JWT token created from POST",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patient_id",
+            "in": "path",
+            "description": "ID of patient that needs to be fetched",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "medication_id",
+            "in": "path",
+            "description": "ID of the patient that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LoginAccount": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Patient": {
+      "type": "object",
+      "properties": {
+        "full_name": {
+          "type": "string"
+        },
+        "sex": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "weight": {
+          "type": "integer"
+        },
+        "patient_condition": {
+          "type": "string"
+        }
+      }
+    },
+    "GetPatient": {
+      "type": "object",
+      "properties": {
+        "patient_id": {
+          "type": "integer"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "sex": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "weight": {
+          "type": "integer"
+        },
+        "patient_condition": {
+          "type": "string"
+        },
+        "prescription": {
+          "type": "array",
+          "description": "Patient's medication and dosage details",
+          "items": {
+            "$ref": "#/definitions/Prescription"
+          }
+        }
+      }
+    },
+    "Prescription": {
+      "type": "object",
+      "properties": {
+        "medication_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "dosage": {
+          "type": "integer"
+        }
+      }
+    },
+    "Medication": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "GetMedication": {
+      "type": "object",
+      "properties": {
+        "medication_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Dose": {
+      "type": "object",
+      "properties": {
+        "dosage": {
+          "type": "string"
+        }
+      }
+    },
+    "GetDose": {
+      "type": "object",
+      "properties": {
+        "patient_id": {
+          "type": "integer"
+        },
+        "medication_id": {
+          "type": "integer"
+        },
+        "dosage": {
+          "type": "string"
+        }
+      }
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "PostPutResult": {
+      "type": "object",
+      "properties": {
+        "fieldCount": {
+          "type": "integer"
+        },
+        "affectedRows": {
+          "type": "integer"
+        },
+        "insertId": {
+          "type": "integer"
+        },
+        "serverStatus": {
+          "type": "integer"
+        },
+        "warningCount": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        },
+        "protocol41": {
+          "type": "integer"
+        },
+        "changedRows": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "comp4537_isa_final",
+  "version": "1.0.0",
+  "description": "Melody & Jay ISA Final Project",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --experimental-json-modules server.js",
+    "server": "nodemon --experimental-json-modules server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed:staff": "node db/seed_staff",
+    "seed:patient": "node db/seed_patient",
+    "seed:med": "node db/seed_medication",
+    "seed:dose": "node db/seed_patientDosage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/melocoh/COMP4537_ISA_Final.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/melocoh/COMP4537_ISA_Final/issues"
+  },
+  "homepage": "https://github.com/melocoh/COMP4537_ISA_Final#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.3.0",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "swagger-ui-express": "^4.1.6"
+  },
+  "devDependencies": {
+    "concurrently": "^5.0.0",
+    "nodemon": "^2.0.1"
+  }
+}

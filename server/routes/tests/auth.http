@@ -1,0 +1,13 @@
+GET {{URL}}/API/v1/logins/stats
+Accept: application/json
+
+###
+POST {{URL}}/API/v1/logins
+Content-Type: application/json
+
+{
+  "email": "A01234567@gmail.com",
+  "password": "123456"
+}
+
+###

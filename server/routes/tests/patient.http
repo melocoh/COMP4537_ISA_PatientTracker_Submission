@@ -1,0 +1,40 @@
+POST {{URL}}/api/v1/patient
+Content-Type: application/json
+auth-token: {{token}}
+
+{
+  "fullName": "John Terry",
+  "sex": "Male",
+  "age": 28,
+  "weight": 69.12,
+  "patient_condition": "Heart Disease"
+}
+
+###
+
+PUT {{URL}}/api/v1/patient/1001
+Content-Type: application/json
+auth-token: {{token}}
+
+{
+  "fullName": "Jane Doe",
+  "sex": "Female",
+  "age": 34,
+  "weight": 49.12,
+  "patient_condition": "Heart Disease"
+}
+
+###
+GET {{URL}}/api/v1/patients/4
+Accept: application/json
+auth-token: {{token}}
+
+###
+
+DELETE {{URL}}/api/v1/patient/4
+Accept: application/json
+auth-token: {{token}}
+
+###
+
+

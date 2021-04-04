@@ -1,0 +1,31 @@
+GET {{URL}}/API/v1/medication/4
+Accept: application/json
+auth-token: {{token}}
+
+###
+
+DELETE {{URL}}/api/v1/medication/4
+Accept: application/json
+auth-token: {{token}}
+
+###
+
+POST {{URL}}/api/v1/medication
+Content-Type: application/json
+auth-token: {{token}}
+
+{
+  "name": "Belize"
+}
+
+###
+
+###
+
+PUT {{URL}}/api/v1/medication/1
+Content-Type: application/json
+auth-token: {{token}}
+
+{
+  "name": "Coke"
+}

@@ -1,0 +1,13 @@
+DELETE {{URL}}/api/v1/dose/2/2
+Accept: application/json
+auth-token: {{token}}
+
+###
+
+POST {{URL}}/api/v1/dose/1001/4
+Content-Type: application/json
+auth-token: {{token}}
+
+{
+  "dosage": 18
+}

@@ -17,7 +17,7 @@ const Stats = () => {
 
   const history = useHistory();
 
-  if (localStorage.getItem("isAdmin") == 0) {
+  if ((localStorage.getItem("isAdmin") == 0) || !(localStorage.getItem("token"))) {
     return <Redirect to="/landing" />;
   }
 

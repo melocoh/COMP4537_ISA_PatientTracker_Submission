@@ -11,10 +11,21 @@ import swaggerDocument from "./swagger.json";
 
 const app = express();
 
-app.use(cors());
+const corsOption = {
+  origin: 'https://comp4537-healthtracker-app.herokuapp.com',
+  optionsSuccessStatus: 200
+}
 
-app.use(express.json({extended: false}));
-app.use('/API/v1/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(cors(corsOption));
+
+// app.use(cors());
+
+app.use(express.json({ extended: false }));
+app.use(
+  "/API/v1/documentation",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 app.use("/API/v1/patients", patientRouter);
 app.use("/API/v1/medications", medicationRouter);
 app.use("/API/v1/doses", doseRouter);

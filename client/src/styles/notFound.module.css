@@ -1,0 +1,22 @@
+.fullPage {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(242, 235, 215, 0.3);
+  z-index: -1;
+}
+
+.pageConatiner {
+  max-width: 700px;
+  margin: 7rem auto;
+  z-index: 0;
+  padding: 3rem;
+  background-color: rgba(242, 235, 215, 0.95);
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 1rem;
+}

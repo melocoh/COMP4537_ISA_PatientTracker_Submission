@@ -1,39 +1,31 @@
 import express from "express";
+import validator from "express-validator";
 import con from "../db/connectDB.js";
 import auth from "../middleware/auth.js";
 import StatReport from "../StatReport.js";
-
+const { check, validationResult } = validator;
 const router = express.Router();
 
-// We can delete later, just wanted to easily see all the values
 // @Route    GET /API/v1/patients
 // @Access  Private
 router.get("/", auth, (req, res) => {
   let sql = `Select * from patient p`;
   con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
+    // server error
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
 
     // increments the counter
-    StatReport.statsObj['GET:/API/v1/patients']++;
-    console.log("GET: /API/v1/patients: " + StatReport.statsObj['GET:/API/v1/patients']);
+    StatReport.statsObj["GET:/API/v1/patients"]++;
+    console.log(
+      "GET: /API/v1/patients: " + StatReport.statsObj["GET:/API/v1/patients"]
+    );
 
     return res.json(result);
   });
 });
-
-// @Route    GET /API/v1/patients/:id
-// @Access  Private
-// router.get("/:id", auth, (req, res) => {
-//   let sql = `Select * from patient p where p.patient_id = ${req.params.id}`;
-
-//   con.query(sql, (err, result) => {
-//     if (err) throw err;
-//     console.log(result);
-
-//     return res.json(result);
-//   });
-// });
 
 // @Route    GET /API/v1/patients/:id
 // @Access  Private
@@ -47,8 +39,16 @@ router.get("/:id", auth, (req, res) => {
     `where p.patient_id = ${req.params.id}`;
 
   con.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
+    // server error
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
+
+    // invalid ID
+    if (result.length < 1) {
+      return res.sendStatus(404);
+    }
 
     let resJson = {
       patient_id: result[0].patient_id,
@@ -70,8 +70,11 @@ router.get("/:id", auth, (req, res) => {
     }
 
     // increments the counter
-    StatReport.statsObj['GET:/API/v1/patients/:id']++;
-    console.log("GET:/API/v1/patients/:id : " + StatReport.statsObj['GET:/API/v1/patients/:id']);
+    StatReport.statsObj["GET:/API/v1/patients/:id"]++;
+    console.log(
+      "GET:/API/v1/patients/:id : " +
+        StatReport.statsObj["GET:/API/v1/patients/:id"]
+    );
 
     return res.json(resJson);
   });
@@ -80,19 +83,35 @@ router.get("/:id", auth, (req, res) => {
 // @Route    DELETE /API/v1/patients/:id
 // @Access  Private
 router.delete("/:id", auth, (req, res) => {
-  let sql = `Delete from PatientDosage d where d.patient_id = ${req.params.id}`;
+  let sql = `Delete from PatientDosage where patient_id = ${req.params.id}`;
   con.query(sql, (err, result) => {
-    if (err) throw err;
+    // server error
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
 
-    sql = `Delete from Patient p where p.patient_id = ${req.params.id}`;
+    sql = `Delete from Patient where patient_id = ${req.params.id}`;
     con.query(sql, (err, result) => {
-      if (err) throw err;
-      console.log(result);
+      // server error
+      if (err) {
+        console.log(err);
+        return res.sendStatus(500);
+      }
+
+      // invalid ID
+      if (!req.params.id || result.affectedRows < 1) {
+        return res.sendStatus(404);
+      }
+
       console.log("Patient Deleted");
 
       // increments the counter
-      StatReport.statsObj['DELETE:/API/v1/patients/:id']++;
-      console.log("DELETE:/API/v1/patients/:id : " + StatReport.statsObj['DELETE:/API/v1/patients/:id']);
+      StatReport.statsObj["DELETE:/API/v1/patients/:id"]++;
+      console.log(
+        "DELETE:/API/v1/patients/:id : " +
+          StatReport.statsObj["DELETE:/API/v1/patients/:id"]
+      );
 
       return res.json(result);
     });
@@ -102,36 +121,89 @@ router.delete("/:id", auth, (req, res) => {
 // @Route    POST /API/v1/patients
 // @Access  Private
 router.post("/", auth, (req, res) => {
-  const { fullName, sex, age, weight, patient_condition } = req.body;
-  let sql = `INSERT INTO Patient (full_name, sex, age, weight, patient_condition) values ('${fullName}', '${sex}', ${age}, ${weight}, '${patient_condition}')`;
+  const { full_name, sex, age, weight, patient_condition } = req.body;
+
+  // invalid input
+  if (
+    !full_name ||
+    typeof full_name !== "string" ||
+    !sex ||
+    typeof sex !== "string" ||
+    age == null ||
+    typeof age !== "number" ||
+    weight == null ||
+    typeof weight !== "number" ||
+    !patient_condition ||
+    typeof patient_condition !== "string"
+  ) {
+    return res.sendStatus(400);
+  }
+
+  let sql = `INSERT INTO Patient (full_name, sex, age, weight, patient_condition) values ('${full_name}', '${sex}', ${age}, ${weight}, '${patient_condition}')`;
   con.query(sql, (err, result) => {
-    if (err) throw err;
+    // server error
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
 
     console.log("Patients added to database");
 
     // increments the counter
-    StatReport.statsObj['POST:/API/v1/patients']++;
-    console.log("POST:/API/v1/patients : " + StatReport.statsObj['POST:/API/v1/patients']);
+    StatReport.statsObj["POST:/API/v1/patients"]++;
+    console.log(
+      "POST:/API/v1/patients : " + StatReport.statsObj["POST:/API/v1/patients"]
+    );
 
-    res.json(result);
+    // successful creation
+    res.status(201).json(result);
   });
 });
 
 // @Route    PUT /API/v1/patients/:id
 // @Access  Private
 router.put("/:id", auth, (req, res) => {
-  const { fullName, sex, age, weight, patient_condition } = req.body;
-  let sql = `UPDATE Patient p SET full_name = '${fullName}', sex = '${sex}', age = ${age}, weight = ${weight}, patient_condition = '${patient_condition}' where p.patient_id = ${req.params.id}`;
+  const { full_name, sex, age, weight, patient_condition } = req.body;
+
+  // invalid input
+  if (
+    !full_name ||
+    typeof full_name !== "string" ||
+    !sex ||
+    typeof sex !== "string" ||
+    age == null ||
+    typeof age !== "number" ||
+    weight == null ||
+    typeof weight !== "number" ||
+    !patient_condition ||
+    typeof patient_condition !== "string"
+  ) {
+    return res.sendStatus(400);
+  }
+
+  let sql = `UPDATE Patient p SET full_name = '${full_name}', sex = '${sex}', age = ${age}, weight = ${weight}, patient_condition = '${patient_condition}' where p.patient_id = ${req.params.id}`;
   con.query(sql, (err, result) => {
-    if (err) throw err;
+    // server error
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
+
+    // invalid ID
+    if (!req.params.id || result.affectedRows < 1) {
+      return res.sendStatus(404);
+    }
 
     console.log("Patient updated!");
 
     // increments the counter
-    StatReport.statsObj['PUT:/API/v1/patients/:id']++;
-    console.log("PUT:/API/v1/patients/:id : " + StatReport.statsObj['PUT:/API/v1/patients/:id']);
+    StatReport.statsObj["PUT:/API/v1/patients/:id"]++;
+    console.log(
+      "PUT:/API/v1/patients/:id : " +
+        StatReport.statsObj["PUT:/API/v1/patients/:id"]
+    );
 
-    res.json(result);
+    res.status(200).json(result);
   });
 });
 

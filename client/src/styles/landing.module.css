@@ -1,0 +1,52 @@
+.fullPage {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(242, 235, 215, 0.3);
+  z-index: 1;
+}
+
+.pageContainer {
+  max-width: 500px;
+  margin: 7rem auto;
+  z-index: 999;
+  padding: 1rem;
+  position: relative;
+}
+
+.logoutBtn {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+}
+
+.title {
+  font-size: 3.5rem !important;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.formContainer {
+  margin-top: 4rem;
+}
+
+.flexContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.label {
+  width: 100%;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.inputStyle {
+  margin-right: 1.5rem;
+}
+
+.registerButton {
+  margin-top: 2rem;
+}

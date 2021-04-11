@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const token = req.header("auth-token");
 
   if (!token) {
@@ -11,7 +11,7 @@ const auth = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWTTOKEN);
+    const decoded = await jwt.verify(token, process.env.JWTTOKEN);
 
     req.user = decoded.user;
     next();

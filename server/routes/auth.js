@@ -4,10 +4,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import con from "../db/connectDB.js";
+import auth from "../middleware/auth.js";
 import StatReport from "../StatReport.js";
 
 const router = express.Router();
-const {check, validationResult} = validator;
+const { check, validationResult } = validator;
 
 dotenv.config();
 
@@ -17,55 +18,57 @@ router.post(
   "/",
   [
     check("email", "Please include a valid email").isEmail(),
-    check("password", "Password is required").exists()
+    check("password", "Password is required").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors.array()});
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
-      let sql = `Select id, password from hospitalstaff h where h.staff_email = '${email}'`;
+      let sql = `Select id, password, isAdmin from hospitalstaff h where h.staff_email = '${email}'`;
       con.query(sql, async (err, result) => {
         if (err) throw err;
         console.log(result);
 
+        const adminRes = result[0].isAdmin;
+
         if (result.length === 0) {
           return res
             .status(400)
-            .json({errors: [{msg: "Invalid Credentials"}]});
+            .json({ errors: [{ msg: "Invalid Credentials" }] });
         }
 
         const isMatch = await bcrypt.compare(password, result[0].password);
 
         if (!isMatch) {
           return res
-            .status(400)
-            .json({errors: [{msg: "Invalid Credentials"}]});
+            .status(401)
+            .json({ errors: [{ msg: "Unauthorized User" }] });
         }
 
         // Return jsonwebtoken
         const payload = {
           user: {
-            id: result[0].id
-          }
+            id: result[0].id,
+            isAdmin: adminRes
+          },
         };
 
         jwt.sign(
           payload,
           process.env.JWTTOKEN,
-          {expiresIn: 360000},
+          { expiresIn: 360000 },
           (err, token) => {
             if (err) throw err;
 
-            res.json({token});
+            res.json({ token, isAdmin: adminRes });
           }
         );
       });
-
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
@@ -73,13 +76,15 @@ router.post(
   }
 );
 
-// Can we change where this is located? I think it should be in admin.js
-// @Route   POST api/v1/logins/stats
-// @access  Public
-router.get("/stats", (req, res)=>{
+// @Route   GET api/v1/logins/stats
+// @access  Private
+router.get("/stats", auth, (req, res) => {
 
-  res.json(StatReport.statsObj);
+  if(req.user.isAdmin === 0){
+    return res.sendStatus(403);
+  }
 
+  res.sendStatus(200).json(StatReport.statsObj);
 });
 
 export default router;
